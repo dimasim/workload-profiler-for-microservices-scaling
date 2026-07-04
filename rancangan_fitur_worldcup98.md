@@ -27,3 +27,22 @@ Berdasarkan metadata biner log WorldCup98 (kolom `filetype` dan `method`), trafi
 ### B. Kelayakan Trafik untuk Project Auto-Scaling
 * **Sifat Bursty**: Trafik log WorldCup98 memiliki pola fluktuasi harian yang sangat ekstrem dan tidak terduga (misalnya lonjakan drastis saat gol terjadi atau pertandingan sedang berlangsung).
 * **Multi-Service Testing**: Dengan memisahkan beban kerja dinamis (`DynamicAPI_Service`) dari statis, Anda dapat memvalidasi kinerja auto-scaler proaktif berbasis LSTM/GRU Anda dalam memicu scaling pada microservice yang tepat secara independen (*decoupled scaling*).
+
+---
+
+## 3. Hasil Analisis Statistik RPS per-Layanan (TR2)
+
+Berdasarkan pemrosesan log biner 24 jam pada sampel data `TR2`, berikut adalah metrik beban kerja per detik untuk masing-masing microservice virtual:
+
+* **Trafik Akumulasi (`total_rps`)**:
+  * Rata-rata: **14.61 RPS**
+  * Puncak (Peak): **71.00 RPS**
+* **`Media_Service`** (Aset Gambar):
+  * Puncak (Peak): **64.00 RPS**
+* **`Content_Service`** (Halaman HTML):
+  * Puncak (Peak): **16.00 RPS**
+* **`DynamicAPI_Service`** (Backend API / POST):
+  * Puncak (Peak): **10.00 RPS**
+* **`Others`** (Layanan Lainnya):
+  * Puncak (Peak): **5.00 RPS**
+
