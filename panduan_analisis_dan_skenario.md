@@ -24,17 +24,27 @@ Tujuan dari tahap ini adalah memahami karakteristik beban kerja riil secara stat
 
 ---
 
-## TAHAP 2: Formulasi Rencana Microservices
+## TAHAP 2: Formulasi Rencana Microservices (Berdasarkan Dataset NASA)
 
-Setelah pola trafik dipahami, Anda perlu menerjemahkan rute-rute API tersibuk di dalam log menjadi layanan microservice yang relevan untuk diuji autoscaling-nya.
+Setelah pola trafik dipahami, rute-rute akses di dalam log NASA dipetakan menjadi layanan microservice yang relevan untuk diuji auto-scaling-nya:
 
-### Contoh Formulasi Layanan:
-* **Service A (CPU-Heavy / Computational Bound)**:
-  * *Rute Log Asli*: `/api/v1/auth/login` atau `/api/v1/checkout`.
-  * *Tugas*: Melakukan proses enkripsi (misal bcrypt), penguraian tanda tangan JWT, atau pemrosesan matematika kompleks.
-* **Service B (I/O-Heavy / Database Bound)**:
-  * *Rute Log Asli*: `/api/v1/items/search` atau `/api/v1/analytics/log`.
-  * *Tugas*: Melakukan query database intensif, pembacaan disk cache, atau penulisan data masal (*bulk write*).
+### Formulasi Layanan & Karakteristik Fitur:
+
+1. **Service A: Dynamic API Service** (CPU-Heavy / Computational Bound)
+   * *Rute Log Asli*: `/cgi-bin/*` (seperti `/cgi-bin/geturlstats.pl`, `/cgi-bin/newwvn-mail.pl`, `/cgi-bin/imagemap/countdown`).
+   * *Tugas*: Melakukan eksekusi script backend dinamis, pemrosesan formulir, pengiriman mail, dan kalkulasi statistik.
+   * *Kesesuaian Scaling*: **Sangat Bagus**. Rute ini membebani CPU secara intensif untuk setiap request yang masuk. Auto-scaling berbasis CPU/RPS sangat cocok diterapkan di sini untuk mencegah overload pada server utama.
+
+2. **Service B: Content Catalog Service** (I/O-Heavy / Database Bound)
+   * *Rute Log Asli*: `/shuttle/countdown/`, `/shuttle/missions/`, atau `/history/apollo/` (membaca dokumen HTML/teks).
+   * *Tugas*: Melakukan pencarian data penerbangan, membaca katalog misi luar angkasa dari database/disk.
+   * *Kesesuaian Scaling*: **Bagus**. Beban kerja didominasi oleh operasi pembacaan database (Read-Heavy). Auto-scaling akan dipicu ketika banyak pengguna membaca konten secara bersamaan.
+
+3. **Service C: Asset Delivery Service** (Network/Memory Bound)
+   * *Rute Log Asli*: `/images/*.gif` (seperti `/images/NASA-logosmall.gif`, `/images/KSC-logosmall.gif`).
+   * *Tugas*: Menyajikan aset gambar statis berukuran kecil hingga sedang.
+   * *Kesesuaian Scaling*: **Sedang**. Biasanya didukung oleh RAM/disk cache. Skala layanan ini dipengaruhi oleh batas bandwidth jaringan dan memori cache.
+
 
 ---
 
